@@ -1,0 +1,64 @@
+{
+  "name": "json-reef",
+  "description": "Efficiently manage JSON data with json-reef: Optimize large JSON objects by resolving references and reducing redundancy, maintaining data consistency with minimal memory footprint.",
+  "packageManager": "yarn@4.0.2",
+  "version": "0.0.0",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hacomono-lib/json-reef.git"
+  },
+  "author": "mew-ton <mxl-usmarc@slmail.mewton.jp>",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "yarn dev:doc & yarn dev:test",
+    "dev:doc": "astro dev --root ./docs --open",
+    "dev:test": "vitest --ui --coverage --typecheck",
+    "build": "build:src && build:doc",
+    "build:doc": "astro check --root ./docs && astro build --root ./docs",
+    "build:src": "tsup",
+    "test": "yarn test:spec & yarn test:type",
+    "test:spec": "vitest --run --typecheck --coverage",
+    "test:type": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "type-fest": "^4.8.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.3.3",
+    "@astrojs/starlight": "^0.15.0",
+    "@changesets/changelog-github": "^0.5.0",
+    "@changesets/cli": "^2.27.1",
+    "@vitest/coverage-v8": "^1.0.4",
+    "@vitest/ui": "^1.0.4",
+    "astro": "^4.0.6",
+    "biome": "^0.3.3",
+    "sharp": "^0.33.1",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "volta": {
+    "node": "20.10.0",
+    "yarn": "4.0.2"
+  }
+}
