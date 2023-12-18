@@ -30,7 +30,9 @@
     "build:src": "tsup",
     "test": "yarn test:spec & yarn test:type",
     "test:spec": "vitest --run --typecheck --coverage",
-    "test:type": "tsc --noEmit -p tsconfig.json"
+    "test:type": "tsc --noEmit -p tsconfig.json",
+    "format": "biome format --write ./src ./test ./docs",
+    "lint": "biome check --apply ./src ./test ./docs"
   },
   "dependencies": {
     "type-fest": "^4.8.3"
@@ -38,12 +40,12 @@
   "devDependencies": {
     "@astrojs/check": "^0.3.3",
     "@astrojs/starlight": "^0.15.0",
+    "@biomejs/biome": "^1.4.1",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
     "@vitest/coverage-v8": "^1.0.4",
     "@vitest/ui": "^1.0.4",
     "astro": "^4.0.6",
-    "biome": "^0.3.3",
     "sharp": "^0.33.1",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",

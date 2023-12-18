@@ -1,6 +1,6 @@
+import starlight from '@astrojs/starlight'
 // eslint-disable-next-line import/extensions
 import { defineConfig } from 'astro/config'
-import starlight from '@astrojs/starlight'
 
 export default defineConfig({
   integrations: [
@@ -12,7 +12,7 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Home',
-          link: '/'
+          link: '/',
         },
         {
           label: 'Introduction',
@@ -20,14 +20,14 @@ export default defineConfig({
           items: [
             { label: 'Getting Started', link: '/guides/start' },
             { label: 'Concepts', link: '/guides/concepts' },
-          ]
+          ],
         },
         {
           label: 'Reference',
           collapsed: false,
           autogenerate: { directory: '/reference', collapsed: false },
-        }
-      ]
-    })
-  ]
+        },
+      ],
+    }),
+  ],
 })
