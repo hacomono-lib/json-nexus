@@ -1,4 +1,4 @@
-import { ref } from '~'
+import { type RefType, ref } from '~'
 
 interface User {
   id: string
@@ -9,7 +9,7 @@ interface User {
 interface Post {
   postId: string
   authorId: string
-  author: User
+  author: RefType<User>
   content: string
 }
 
@@ -17,9 +17,17 @@ interface Comment {
   commentId: string
   postId: string
   authorId: string
-  author: User
-  post: Post
+  author: RefType<User>
+  post: RefType<Post>
   content: string
+}
+
+interface Fixture {
+  datas: {
+    users: Record<string, User>
+    posts: Record<string, Post>
+  }
+  comments: Comment[]
 }
 
 export const fixture = {
@@ -35,7 +43,7 @@ export const fixture = {
         name: 'Bob',
         email: 'bob@example.com',
       },
-    } satisfies Record<string, User>,
+    },
     posts: {
       '001': {
         postId: '001',
@@ -49,7 +57,7 @@ export const fixture = {
         author: ref<User>('#/datas/users/67890'),
         content: 'This is the second post content.',
       },
-    } satisfies Record<string, Post>,
+    },
   },
   comments: [
     {
@@ -68,5 +76,5 @@ export const fixture = {
       author: ref<User>('#/datas/users/12345'),
       content: 'This is the second comment content.',
     },
-  ] satisfies Comment[],
-}
+  ],
+} satisfies Fixture

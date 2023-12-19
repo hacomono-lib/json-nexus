@@ -1,8 +1,12 @@
-import type { Get, Simplify } from 'type-fest'
+import type { Get, IsUnknown } from 'type-fest'
 
-type Branded<T, B> = T & { __brand: B }
+declare const __brand: unique symbol
 
-export type Reefiable = ReefyParsablePrimitive | ReefyParsableArray | ReefyParsableObject | RefObject
+declare const __origin: unique symbol
+
+type Branded<T, B> = T & { [__brand]: B }
+
+export type Reefiable = ReefyParsablePrimitive | ReefyParsableArray | ReefyParsableObject | Ref
 
 export type ReefyParsablePrimitive = string | number | boolean | null
 
@@ -32,26 +36,37 @@ export interface ReefiedMeta<Origin extends Reefiable> {
   /**
    * @deprecated this is meta data, not intended to be used directly.
    */
-  __origin: Origin
+  [__origin]: Origin
 }
 
 export type Reefied<Origin extends Reefiable, T> = T | (T & ReefiedMeta<Origin>)
 
-export type Reefy<Origin extends Reefiable, Target extends Reefiable = Origin> = Simplify<ReefyInternal<Origin, Target>>
+export type Reefy<Origin extends Reefiable, Target extends Reefiable = Origin> = ReefyInternal<Origin, Target>
 
-export type ReefyInternal<
-  Origin extends Reefiable,
-  Target extends Reefiable = Origin,
-> = Target extends ReefyParsablePrimitive
-  ? Reefied<Origin, Target>
-  : Target extends RefType<infer R>
-    ? Reefied<Origin, R>
-    : Target extends RefObject<infer P>
-      ? Reefied<Origin, PickRef<P, Origin>>
-      : Target extends ReefyParsableArray | ReefyParsableObject
-        ? {
-            [K in keyof Target]: Target[K] extends Reefiable ? ReefyInternal<Origin, Target[K]> : never
-          } extends infer R
-          ? Reefied<Origin, R>
+type Cast<T, P> = T extends P ? T : P
+
+type ReefyInternal<Origin extends Reefiable, Target extends Reefiable = Origin> = IsUnknown<Target> extends true
+  ? // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    Reefied<Origin, any>
+  : Target extends ReefyParsablePrimitive
+    ? Reefied<Origin, Target>
+    : Target extends RefType<infer R>
+      ? Reefied<Origin, R>
+      : Target extends RefObject<infer P>
+        ? Reefied<Origin, PickRef<P, Origin>>
+        : Target extends infer R extends ReefyParsableArray | ReefyParsableObject
+          ? {
+              [K in keyof R]: ReefyInternal<Origin, Cast<R[K], Reefiable>>
+            } extends infer R2
+            ? Reefied<Origin, R2>
+            : never
           : never
-        : never
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export type Unreefy<T extends Reefied<any, any>> = T extends Reefied<any, infer R>
+  ? IsUnknown<R> extends true
+    ? Reefiable
+    : R
+  : Reefiable
+
+type UnreefyInternal<T extends Reefied<any, any>> = T extends Reefied<any, infer R>

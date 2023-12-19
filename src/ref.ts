@@ -1,6 +1,9 @@
-import type { RefObject, RefPath, RefType } from './types'
+import type { Ref, RefObject, RefPath, RefType } from './types'
 
-export function ref<P extends RefPath, T = unknown>(path: P): unknown extends T ? RefObject<P> : RefType<T> {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  return { $ref: path } as any
+export function ref<T>(path: string): RefType<T>
+
+export function ref<P extends RefPath>(path: P): RefObject<P>
+
+export function ref(path: string): Ref {
+  return { $ref: path } as Ref
 }
