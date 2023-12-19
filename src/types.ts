@@ -1,12 +1,18 @@
 import type { Get, Simplify } from 'type-fest'
 
+type Branded<T, B> = T & { __brand: B }
+
 export type Reefiable = ReefyParsablePrimitive | ReefyParsableArray | ReefyParsableObject | RefObject
 
 export type ReefyParsablePrimitive = string | number | boolean | null
 
 export type ReefyParsableArray = Reefiable[] | readonly Reefiable[]
 
-export type ReefyParsableObject = { [k in string]: Reefiable } & { [k in string]?: Reefiable | undefined }
+export type ReefyParsableObject = { [_ in string]: Reefiable } & { [_ in string]?: Reefiable | undefined }
+
+export type Ref = RefType | RefObject
+
+export type RefType<T = unknown> = Branded<T & RefObject, 'RefType'>
 
 export interface RefObject<R extends RefPath = RefPath> {
   $ref: R
@@ -20,19 +26,32 @@ export type Replace<S extends string, B extends string, A extends string> = S ex
   ? Replace<`${R1}${A}${R2}`, B, A>
   : S
 
-export type PickRef<P extends RefPath, O extends Reefiable> = Get<O, DotPath<P>>
+export type PickRef<P extends RefPath, O extends Reefiable> = RefPath extends P ? unknown : Get<O, DotPath<P>>
 
-export type Reefied<ORIGIN extends Reefiable, T> = T & { [_ in typeof origin]: ORIGIN }
+export interface ReefiedMeta<Origin extends Reefiable> {
+  /**
+   * @deprecated this is meta data, not intended to be used directly.
+   */
+  __origin: Origin
+}
 
-export type Reefy<ORIGIN extends Reefiable, TARGET extends Reefiable = ORIGIN> = Simplify<ReefyInternal<ORIGIN, TARGET>>
+export type Reefied<Origin extends Reefiable, T> = T | (T & ReefiedMeta<Origin>)
+
+export type Reefy<Origin extends Reefiable, Target extends Reefiable = Origin> = Simplify<ReefyInternal<Origin, Target>>
 
 export type ReefyInternal<
-  ORIGIN extends Reefiable,
-  TARGET extends Reefiable = ORIGIN,
-> = TARGET extends ReefyParsablePrimitive
-  ? TARGET
-  : TARGET extends RefObject<infer P>
-    ? PickRef<P, ORIGIN>
-    : TARGET extends ReefyParsableArray | ReefyParsableObject
-      ? Reefied<ORIGIN, { [K in keyof TARGET]: TARGET[K] extends Reefiable ? ReefyInternal<ORIGIN, TARGET[K]> : never }>
-      : never
+  Origin extends Reefiable,
+  Target extends Reefiable = Origin,
+> = Target extends ReefyParsablePrimitive
+  ? Reefied<Origin, Target>
+  : Target extends RefType<infer R>
+    ? Reefied<Origin, R>
+    : Target extends RefObject<infer P>
+      ? Reefied<Origin, PickRef<P, Origin>>
+      : Target extends ReefyParsableArray | ReefyParsableObject
+        ? {
+            [K in keyof Target]: Target[K] extends Reefiable ? ReefyInternal<Origin, Target[K]> : never
+          } extends infer R
+          ? Reefied<Origin, R>
+          : never
+        : never

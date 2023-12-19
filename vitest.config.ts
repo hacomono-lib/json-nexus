@@ -1,3 +1,4 @@
+import { resolve } from 'path'
 import { defineConfig } from 'vitest/config'
 
 // biome-ignore lint/nursery/noDefaultExport: <explanation>
@@ -8,7 +9,7 @@ export  default defineConfig({
       include: ['test/**/*.{test,spec}-d.ts']
     },
     alias: {
-      '~': './src'
+      '~': resolve(__dirname, './src')
     }
   }
 })
